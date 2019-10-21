@@ -1,7 +1,7 @@
 # Bluhr
 Transform your images into geometric primitives using this web application
 
-Using the [primitive](https://github.com/fogleman/primitive) library, the algorithm finds 
+Using the [primitive](https://github.com/fogleman/primitive) library, the algorithm finds the most optimal shape for each unique mode that can be drawn to minimize the error between the original image and the resulting images. Results shown utilize 100 distinct shapes. More shapes will produce results resembling a closer appearance to the original photo.
 
 Original Photo: My dog Beckham 
 ![](chavy.jpg)
