@@ -74,7 +74,7 @@ func main() {
 			return
 		}
 		file.Seek(0, 0)
-		g, err := generateImage(file, ext, 100, primitive.ModeRotatedRect)
+		g, err := generateImage(file, ext, 100, primitive.ModeRotatedEllipse)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
