@@ -7,10 +7,31 @@ import (
 )
 
 func main() {
-	cmd := exec.Command("primitive", strings.Fields("-i chavy.jpg -o out.png -n 100")...)
-	b, err := cmd.CombinedOutput()
+	out, err := primitive("chavy.jpg", "out.png", 100, rotatedEllipse)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(string(b))
+	fmt.Println(out)
+
+}
+
+type Mode int
+
+const (
+	combo Mode = iota
+	triangle
+	rect
+	ellipse
+	circle
+	rotatedRect
+	beziers
+	rotatedEllipse
+	polygon
+)
+
+func primitive(inputFile, outputFile string, numShapes int, mode Mode) (string, error) {
+	argsStr := fmt.Sprintf("-i %s -o %s -n %d -m %d", inputFile, outputFile, numShapes, mode)
+	cmd := exec.Command("primitive", strings.Fields(argsStr)...)
+	b, err := cmd.CombinedOutput()
+	return string(b), err
 }
