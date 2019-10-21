@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/JQuiroz728/imageTransform/primitive"
@@ -35,26 +38,69 @@ func main() {
 		defer file.Close()
 
 		ext := filepath.Ext(header.Filename)[1:]
-		out, err := primitive.Transform(file, ext, 50)
+		a, err := generateImage(file, ext, 100, primitive.ModeCircle)
 		if err != nil {
+			panic(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-		}
-
-		// Validate proper image formats
-		switch ext {
-		case "jpg":
-			fallthrough
-		case "jpeg":
-			w.Header().Set("Content-Type", "image/jpeg")
-		case "png":
-			w.Header().Set("Content-Type", "image/png")
-		default:
-			http.Error(w, "Invalid Image Format (Please use .png or .jpg)", http.StatusInternalServerError)
 			return
 		}
-		io.Copy(w, out)
+		file.Seek(0, 0)
+		b, err := generateImage(file, ext, 100, primitive.ModeEllipse)
+		if err != nil {
+			panic(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		file.Seek(0, 0)
+		c, err := generateImage(file, ext, 100, primitive.ModePolygon)
+		if err != nil {
+			panic(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		file.Seek(0, 0)
+		d, err := generateImage(file, ext, 100, primitive.ModeCombo)
+		if err != nil {
+			panic(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		html :=
+			`<html><body>
+			{{range .}}
+			<img src="/{{.}}">
+			{{end}}
+		</body></html>`
+		templte := template.Must(template.New("").Parse(html))
+		images := []string{a, b, c, d}
+		templte.Execute(w, images)
 	})
+
 	fileServer := http.FileServer(http.Dir("./img/"))
 	mux.Handle("/img/", http.StripPrefix("/img", fileServer))
 	log.Fatal(http.ListenAndServe(":3000", mux))
+}
+
+func tempFile(prefix, ext string) (*os.File, error) {
+	in, err := ioutil.TempFile("./img/", prefix)
+	if err != nil {
+		return nil, err
+	}
+	defer os.Remove(in.Name())
+	return os.Create(fmt.Sprintf("%s.%s", in.Name(), ext))
+}
+
+func generateImage(read io.Reader, ext string, numShapes int, mode primitive.Mode) (string, error) {
+	out, err := primitive.Transform(read, ext, numShapes, primitive.WithMode(mode))
+	if err != nil {
+		return "", err
+	}
+	outputFile, err := tempFile("", ext)
+	if err != nil {
+		return "", err
+	}
+	defer outputFile.Close()
+	io.Copy(outputFile, out)
+	return outputFile.Name(), nil
 }

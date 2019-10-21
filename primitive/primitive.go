@@ -35,6 +35,10 @@ func WithMode(mode Mode) func() []string {
 
 // Transform will take provided image and apply transformation, returns reader to the result
 func Transform(image io.Reader, ext string, numShapes int, options ...func() []string) (io.Reader, error) {
+	var args []string
+	for _, option := range options {
+		args = append(args, option()...)
+	}
 	// input
 	in, err := tempFile("in_", ext)
 	if err != nil {
@@ -52,7 +56,7 @@ func Transform(image io.Reader, ext string, numShapes int, options ...func() []s
 	if err != nil {
 		return nil, err
 	}
-	stdCombo, err := primitive(in.Name(), out.Name(), numShapes, ModeCombo)
+	stdCombo, err := primitive(in.Name(), out.Name(), numShapes, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +71,7 @@ func Transform(image io.Reader, ext string, numShapes int, options ...func() []s
 }
 
 func tempFile(prefix, ext string) (*os.File, error) {
-	in, err := ioutil.TempFile("", "in_")
+	in, err := ioutil.TempFile("", prefix)
 	if err != nil {
 		return nil, err
 	}
@@ -75,9 +79,10 @@ func tempFile(prefix, ext string) (*os.File, error) {
 	return os.Create(fmt.Sprintf("%s.%s", in.Name(), ext))
 }
 
-func primitive(inputFile, outputFile string, numShapes int, mode Mode) (string, error) {
-	argsStr := fmt.Sprintf("-i %s -o %s -n %d -m %d", inputFile, outputFile, numShapes, mode)
-	cmd := exec.Command("primitive", strings.Fields(argsStr)...)
+func primitive(inputFile, outputFile string, numShapes int, args ...string) (string, error) {
+	argsStr := fmt.Sprintf("-i %s -o %s -n %d", inputFile, outputFile, numShapes)
+	args = append(strings.Fields(argsStr), args...)
+	cmd := exec.Command("primitive", args...)
 	b, err := cmd.CombinedOutput()
 	return string(b), err
 }
