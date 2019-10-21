@@ -34,15 +34,15 @@ func WithMode(mode Mode) func() []string {
 }
 
 // Transform will take provided image and apply transformation, returns reader to the result
-func Transform(image io.Reader, numShapes int, options ...func() []string) (io.Reader, error) {
+func Transform(image io.Reader, ext string, numShapes int, options ...func() []string) (io.Reader, error) {
 	// input
-	in, err := tempFile("in_", "png")
+	in, err := tempFile("in_", ext)
 	if err != nil {
 		return nil, err
 	}
 	defer os.Remove(in.Name())
 	// output
-	out, err := tempFile("out_", "png")
+	out, err := tempFile("out_", ext)
 	if err != nil {
 		return nil, err
 	}
