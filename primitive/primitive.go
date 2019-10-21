@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// User defined shapes for transforming images
+// Mode - User defined shapes for transforming images
 type Mode int
 
 // Supported modes by primitive
@@ -26,23 +26,23 @@ const (
 	ModePolygon
 )
 
-// Option for transform func that will define desired mode. Default mode = triangle
-func withMode(mode Mode) func() []string {
+// WithMode will provide option for transform func that will define desired mode. Default mode = triangle
+func WithMode(mode Mode) func() []string {
 	return func() []string {
 		return []string{"-m", fmt.Sprintf("%d", mode)}
 	}
 }
 
-// Take provided image and apply transformation, returns reader to the result
-func transform(image io.Reader, numShapes int, options ...func() []string) (io.Reader, error) {
+// Transform will take provided image and apply transformation, returns reader to the result
+func Transform(image io.Reader, numShapes int, options ...func() []string) (io.Reader, error) {
 	// input
-	in, err := ioutil.TempFile("", "in_")
+	in, err := tempFile("in_", "png")
 	if err != nil {
 		return nil, err
 	}
 	defer os.Remove(in.Name())
 	// output
-	out, err := ioutil.TempFile("", "in_")
+	out, err := tempFile("out_", "png")
 	if err != nil {
 		return nil, err
 	}
@@ -64,6 +64,15 @@ func transform(image io.Reader, numShapes int, options ...func() []string) (io.R
 		return nil, err
 	}
 	return b, nil
+}
+
+func tempFile(prefix, ext string) (*os.File, error) {
+	in, err := ioutil.TempFile("", "in_")
+	if err != nil {
+		return nil, err
+	}
+	defer os.Remove(in.Name())
+	return os.Create(fmt.Sprintf("%s.%s", in.Name(), ext))
 }
 
 func primitive(inputFile, outputFile string, numShapes int, mode Mode) (string, error) {

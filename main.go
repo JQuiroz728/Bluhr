@@ -1,37 +1,22 @@
 package main
 
 import (
-	"fmt"
-	"os/exec"
-	"strings"
+	"io"
+	"os"
+
+	"github.com/JQuiroz728/imageTransform/primitive"
 )
 
 func main() {
-	out, err := primitive("chavy.jpg", "out.png", 100, rotatedEllipse)
+	file, err := os.Open("chavy.jpg")
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(out)
+	defer file.Close()
+	out, err := primitive.Transform(file, 50)
+	if err != nil {
+		panic(err)
+	}
+	io.Copy(os.Stdout, out)
 
-}
-
-type Mode int
-
-const (
-	combo Mode = iota
-	triangle
-	rect
-	ellipse
-	circle
-	rotatedRect
-	beziers
-	rotatedEllipse
-	polygon
-)
-
-func primitive(inputFile, outputFile string, numShapes int, mode Mode) (string, error) {
-	argsStr := fmt.Sprintf("-i %s -o %s -n %d -m %d", inputFile, outputFile, numShapes, mode)
-	cmd := exec.Command("primitive", strings.Fields(argsStr)...)
-	b, err := cmd.CombinedOutput()
-	return string(b), err
 }
