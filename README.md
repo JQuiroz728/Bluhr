@@ -1,6 +1,8 @@
 # Bluhr
 Transform your images into geometric primitives using this web application
 
+Using the [primitive](https://github.com/fogleman/primitive) library, the algorithm finds 
+
 Original Photo: My dog Beckham 
 ![](chavy.jpg)
 
