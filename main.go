@@ -38,30 +38,56 @@ func main() {
 		defer file.Close()
 
 		ext := filepath.Ext(header.Filename)[1:]
-		a, err := generateImage(file, ext, 100, primitive.ModeCircle)
+		a, err := generateImage(file, ext, 100, primitive.ModeTriangle)
 		if err != nil {
-			panic(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		file.Seek(0, 0)
-		b, err := generateImage(file, ext, 100, primitive.ModeEllipse)
+		b, err := generateImage(file, ext, 100, primitive.ModeRect)
 		if err != nil {
-			panic(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		file.Seek(0, 0)
-		c, err := generateImage(file, ext, 100, primitive.ModePolygon)
+		c, err := generateImage(file, ext, 100, primitive.ModeEllipse)
 		if err != nil {
-			panic(err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		file.Seek(0, 0)
-		d, err := generateImage(file, ext, 100, primitive.ModeCombo)
+		d, err := generateImage(file, ext, 100, primitive.ModeCircle)
 		if err != nil {
-			panic(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		file.Seek(0, 0)
+		e, err := generateImage(file, ext, 100, primitive.ModeRotatedRect)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		file.Seek(0, 0)
+		f, err := generateImage(file, ext, 100, primitive.ModeBeziers)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		file.Seek(0, 0)
+		g, err := generateImage(file, ext, 100, primitive.ModeRotatedRect)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		file.Seek(0, 0)
+		h, err := generateImage(file, ext, 100, primitive.ModePolygon)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		file.Seek(0, 0)
+		i, err := generateImage(file, ext, 100, primitive.ModeCombo)
+		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
@@ -73,7 +99,7 @@ func main() {
 			{{end}}
 		</body></html>`
 		templte := template.Must(template.New("").Parse(html))
-		images := []string{a, b, c, d}
+		images := []string{a, b, c, d, e, f, g, h, i}
 		templte.Execute(w, images)
 	})
 
