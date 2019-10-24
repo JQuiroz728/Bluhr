@@ -14,7 +14,7 @@ Results (100 distinct shapes using various modes):
 5. Rotated Rectangles
 ![](results1.png)
 
-6. Bezier Lines
+6. Bézier curves
 7. Rotated Ellipses
 8. Polygons
 9. Combination of all
